@@ -97,8 +97,7 @@ st.markdown("""
         color: #f43f5e !important;
         background-color: rgba(0,0,0,0.3) !important;
     }
-</style>
-""", unsafe_allow_html=True)
+</style>""", unsafe_allow_html=True)
 
 USER_DB_FILE = "users_database.json"
 
@@ -133,7 +132,7 @@ if "selected_quote" not in st.session_state:
     st.session_state.selected_quote = random.choice(INSPIRATIONAL_QUOTES)
 
 # ==============================================================================
-# SECURE DISCRETE ADMINISTRATIVE ROUTING BACKDOOR
+# SECURED DISCRETE ADMINISTRATIVE ROUTING BACKDOOR
 # ==============================================================================
 query_params = st.query_params
 is_creator_mode = query_params.get("access_scope") == "creator_admin_override"
@@ -180,4 +179,133 @@ if not st.session_state.authenticated:
 
     with col_right:
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.subheader("🔐 Access Control System")
+        
+        auth_action = st.radio("Choose Gateway Option", ["Access Existing Profile", "Provision New Profile"])
+        username_input = st.text_input("Enter Profile Name")
+        password_input = st.text_input("Enter Profile Password Token", type="password")
+        
+        if auth_action == "Access Existing Profile":
+            if st.button("Verify Credentials ➔"):
+                users_database = load_users()
+                if username_input in users_database and users_database[username_input]["password"] == password_input:
+                    st.session_state.authenticated = True
+                    st.session_state.username = username_input
+                    st.success("Access tokens confirmed successfully.")
+                    st.rerun()
+                else:
+                    st.error("Authentication check failed. Confirm spelling or password fields.")
+        else:
+            if st.button("Initialize Structural Profile ➔"):
+                users_database = load_users()
+                if username_input in users_database:
+                    st.error("Profile label already allocated in user records.")
+                elif len(username_input) < 3 or len(password_input) < 4:
+                    st.warning("Username must exceed 2 characters; password must exceed 3 characters.")
+                else:
+                    save_user(username_input, password_input)
+                    st.success("Account provisioned! Please switch options to 'Access Existing Profile' above to sign in.")
+                    
+        st.markdown("</div>", unsafe_allow_html=True)
+
+else:
+    # ==============================================================================
+    # SECURED REGION: LOGGED IN WORKSPACE DASHBOARD
+    # ==============================================================================
+    st.sidebar.markdown(f"### 🔮 Dashboard Controller")
+    st.sidebar.markdown(f"User Stance: {st.session_state.username}")
+    st.sidebar.markdown("---")
+    st.sidebar.caption("🔧 Platform Administrator Note: To check real-time global login rosters without building standard input boxes, pass ?access_scope=creator_admin_override parameter through your active address line.")
+    
+    if st.sidebar.button("De-authenticate Session (Sign Out)"):
+        st.session_state.authenticated = False
+        st.session_state.username = None
+        st.session_state.dialogue_step = 0
+        st.session_state.user_responses = {}
+        st.rerun()
+
+    st.title("🧭 Intelligent Trajectory Inference Dashboard")
+    st.markdown("### 🤖 Diagnostic Dialogue Analysis")
+    
+    dialogue_flow = {
+        0: {
+            "question": "Which domain core matches your instinctual capability matrix?",
+            "key": "logic_vs_visual",
+            "options": ["Systematic coding, logic automation, and back-end algorithm design", "Visual arts, user journey crafting, and creative application architecture"]
+        },
+        1: {
+            "question": "What is your comfort framework regarding heavy statistical analysis and analytical models?",
+            "key": "math_comfort",
+            "options": ["High performance comfort with math models and data sorting matrices", "Low comfort boundaries with mathematics; preference for business strategy or interface structure"]
+        }
+    }
+    
+    step_pointer = st.session_state.dialogue_step
+    
+    if step_pointer < len(dialogue_flow):
+        st.info(f"AI Clarifying Evaluation Query - Phase {step_pointer + 1} of {len(dialogue_flow)}:")
+        st.markdown(f"#### {dialogue_flow[step_pointer]['question']}")
+        user_pick = st.radio("Assert your preference:", dialogue_flow[step_pointer]['options'])
+        
+        if st.button("Register Inference Fact ➔"):
+            st.session_state.user_responses[dialogue_flow[step_pointer]['key']] = user_pick
+            st.session_state.dialogue_step += 1
+            st.rerun()
+    else:
+        st.success("✅ Dialogue profile parameters locked into system Working Memory successfully.")
+        if st.button("🔄 Reset Conversational Engine"):
+            st.session_state.dialogue_step = 0
+            st.session_state.user_responses = {}
+            st.rerun()
+            
+    user_facts = st.session_state.user_responses
+    Atom_Coding = "systematic coding" in user_facts.get("logic_vs_visual", "").lower()
+    Atom_Art = not Atom_Coding
+    Atom_Math = "high performance" in user_facts.get("math_comfort", "").lower()
+    Atom_Strategy = not Atom_Math
+
+    if Atom_Coding and Atom_Math:
+        target_key = "data_science_ai"
+    elif Atom_Coding and not Atom_Math:
+        target_key = "software_engineering"
+    elif Atom_Art and Atom_Strategy:
+        target_key = "product_management"
+    else:
+        target_key = "ui_ux_design"
+
+    record = KNOWLEDGE_BASE[target_key]
+    
+    st.markdown("---")
+    st.subheader("🧠 Knowledge Base Logical Resolution Results")
+    st.markdown(f"""
+    * **🎯 Deduced Path Target:** {record['title']}
+    * **Propositional Logic Statement Evaluated:** `{record['logic_expression']}`
+    * **💡 Conditional Justification Architecture:** If you proceed down this target trajectory, the following framework occurs: {record['consequence_if_taken']}
+    * **⚠️ Counterfactual Alternative Reality:** Conversely, if you choose to avoid this logical path, you must accept these constraints: {record['consequence_if_avoided']}
+    """, unsafe_allow_html=True)
+    
+    st.markdown("### 📊 Live Matrix Capability Evaluation")
+    left_p, right_p = st.columns(2)
+    
+    with left_p:
+        input_grade = st.slider("State current quantitative assessment performance marks (%)", 10, 100, 75)
+        if input_grade < 60:
+            st.warning("⚠️ Optimization Required: High foundational gaps detected. System recommends focus on basic programming loops, algorithm principles, and structured textbooks before seeking complex frameworks.")
+        elif input_grade < 85:
+            st.info("📈 Growth Matrix Running: Moderate skills detected. System recommendation details focus on working open-source repos, executing build architectures, and pipeline setups.")
+        else:
+            st.success("🌟 High proficiency verified: Advanced capability matrix detected. Transition directly toward advanced microservice layout frameworks, technical documentation production, and logic system research.")
+            
+    with right_p:
+        st.markdown("Core Skill Set Roadmap Requirements for Perfection:")
+        for core_skill in record['prereqs']:
+            st.markdown(f"- 🛠️ Mandatory Target Cluster: {core_skill}")
+            
+    st.markdown("### ⏳ Macro-Horizon Economic Paradigm Forecasting Matrix")
+    col_now, col_future = st.columns(2)
+    with col_now:
+        st.info(f"Current Real-Time Global Structural Trend ({CURRENT_YEAR}): {record['market_trend_now']}")
+    with col_future:
+        st.success(f"10-Year Forward Looking Technology Shift Strategy ({CURRENT_YEAR + 10}): {record['market_trend_10y']}")
+        
+    st.markdown("---")
+    st.caption(f"{APP_NAME} Framework Engine v1.1.0 • Formulated under B.Tech AI Production Principles.")
