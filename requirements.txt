@@ -1,8 +1,2 @@
-
----
-
-### 2. Environment Configuration File (`requirements.txt`)
-Ensures rapid build and zero deployment library breaks.
-```text
-streamlit>=1.35.0
-pandas>=2.1.0
+streamlit
+pandas
